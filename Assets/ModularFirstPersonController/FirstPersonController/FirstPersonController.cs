@@ -151,6 +151,9 @@ public class FirstPersonController : MonoBehaviour
 
     void Start()
     {
+        Transform currtran = SpawnManager.instance.GetRandomSpawnPoint();
+        transform.position=currtran.position;
+        transform.rotation=currtran.rotation;
         if(lockCursor)
         {
             Cursor.lockState = CursorLockMode.Locked;
