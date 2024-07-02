@@ -1,53 +1,49 @@
+using Photon.Pun;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class WeaponSwitcher : MonoBehaviour
+public class WeaponSwitcher : MonoBehaviourPunCallbacks
 {
     public int selectedWeapon = 0;
+    FirstPersonController fps;
+    private void Awake()
+    {
+        fps=FindObjectOfType<FirstPersonController>();
+    }
 
     void Start()
     {
-        SelectWeaponery();
+        fps.WeaponSelect(selectedWeapon);
     }
 
     void Update()
     {
-        int previousSelectedWeapon = selectedWeapon;
-
-        if (Input.GetAxis("Mouse ScrollWheel") > 0f)
+        if (photonView.IsMine)
         {
-            if (selectedWeapon >= transform.childCount - 1)
-                selectedWeapon = 0;
-            else
-                selectedWeapon++;
-        }
+            int previousSelectedWeapon = selectedWeapon;
 
-        if (Input.GetAxis("Mouse ScrollWheel") < 0f)
-        {
-            if (selectedWeapon <= 0)
-                selectedWeapon = transform.childCount - 1;
-            else
-                selectedWeapon--;
-        }
+            if (Input.GetAxis("Mouse ScrollWheel") > 0f)
+            {
+                if (selectedWeapon >= transform.childCount - 1)
+                    selectedWeapon = 0;
+                else
+                    selectedWeapon++;
+            }
 
-        if (previousSelectedWeapon != selectedWeapon)
-        {
-            SelectWeaponery();
-        }
-    }
+            if (Input.GetAxis("Mouse ScrollWheel") < 0f)
+            {
+                if (selectedWeapon <= 0)
+                    selectedWeapon = transform.childCount - 1;
+                else
+                    selectedWeapon--;
+            }
 
-    void SelectWeaponery()
-    {
-        int i = 0;
-        foreach (Transform weapon in transform)
-        {
-            if (i == selectedWeapon)
-                weapon.gameObject.SetActive(true);
-            else
-                weapon.gameObject.SetActive(false);
-
-            i++;
+            if (previousSelectedWeapon != selectedWeapon)
+            {
+                fps.WeaponSelect(selectedWeapon);
+            }
         }
     }
+    
 }

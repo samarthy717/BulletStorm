@@ -1,9 +1,10 @@
+using Photon.Pun;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class Shooter : MonoBehaviour
+public class Shooter : MonoBehaviourPunCallbacks
 {
     public GameObject bulletImpact;
     public float TimebwShots = .1f;
@@ -20,48 +21,59 @@ public class Shooter : MonoBehaviour
     public float muzzledisplaytime = 1 / 60;
     private float muzzlecounter;
 
+    public float GunDamage = 10f;
+    public GameObject playerimpact;
+    FirstPersonController fps;
+
     void Start()
     {
         heatCounter = 0f;
         UpdateSliderColor();
+        fps=FindObjectOfType<FirstPersonController>();
     }
 
     void Update()
     {
-        muzzlecounter-=Time.deltaTime;
-        if (muzzlecounter <= 0f)
+        if (photonView.IsMine)
         {
-            muzzleflash.SetActive(false);
-            muzzlecounter = 0f;
-        }
-        if (!overheated)
-        {
-            if (Input.GetMouseButtonDown(0))
+            muzzlecounter -= Time.deltaTime;
+            if (muzzlecounter <= 0f)
             {
-                Shoot();
+                muzzleflash.SetActive(false);
+                muzzlecounter = 0f;
             }
-            if (Input.GetMouseButton(0))
+            if (!overheated)
             {
-                shotcounter -= Time.deltaTime;
-                if (shotcounter <= 0)
+                // if (photonView.IsMine)
+                // {
+                if (Input.GetMouseButtonDown(0))
                 {
                     Shoot();
                 }
+                if (Input.GetMouseButton(0))
+                {
+                    shotcounter -= Time.deltaTime;
+                    if (shotcounter <= 0)
+                    {
+                        Shoot();
+                    }
+                }
+                // }
+                heatCounter -= coolRate * Time.deltaTime;
+                UpdateSliderColor();
             }
-            heatCounter -= coolRate * Time.deltaTime;
-            UpdateSliderColor();
-        }
-        else
-        {
-            heatCounter -= overheatCoolRate * Time.deltaTime;
-            if (heatCounter < 0)
+            else
             {
-                overheated = false;
-                UIController.Instance.overheatedmessage.gameObject.SetActive(false);
-                //UIController.Instance.crosshair.gameObject.SetActive(true);
+                heatCounter -= overheatCoolRate * Time.deltaTime;
+                if (heatCounter < 0)
+                {
+                    overheated = false;
+                    UIController.Instance.overheatedmessage.gameObject.SetActive(false);
+                    //UIController.Instance.crosshair.gameObject.SetActive(true);
+                }
             }
+            if (heatCounter <= 0) heatCounter = 0;
         }
-        if (heatCounter <= 0) heatCounter = 0;
     }
 
     void Shoot()
@@ -71,9 +83,19 @@ public class Shooter : MonoBehaviour
 
         if (Physics.Raycast(ray, out RaycastHit hit))
         {
-            Debug.Log(hit.collider.gameObject.name);
-            GameObject bulletImpactObject = Instantiate(bulletImpact, hit.point + (hit.normal * (.002f)), Quaternion.LookRotation(hit.normal, Vector3.up));
-            Destroy(bulletImpactObject, 5f);
+            Debug.Log(hit.collider.gameObject.tag);
+            if (hit.collider != null && hit.collider.gameObject.tag == "Player")
+            {
+                Debug.Log("playerhit"+hit.collider.gameObject.GetPhotonView().Owner.NickName);
+                PhotonNetwork.Instantiate(playerimpact.name, hit.point, Quaternion.identity);
+                fps.TakeDamage(hit,GunDamage);
+                //hit.collider.gameObject.GetPhotonView().RPC("DealDamage",RpcTarget.All,photonView.Owner.NickName);
+            }
+            else
+            {
+                GameObject bulletImpactObject = Instantiate(bulletImpact, hit.point + (hit.normal * (.002f)), Quaternion.LookRotation(hit.normal, Vector3.up));
+                Destroy(bulletImpactObject, 5f);
+            }
         }
         shotcounter = TimebwShots;
 
@@ -90,7 +112,6 @@ public class Shooter : MonoBehaviour
         muzzleflash.SetActive(true);
         muzzlecounter = muzzledisplaytime;
     }
-
     void UpdateSliderColor()
     {
         // Calculate the ratio of heatCounter to maxHeat
