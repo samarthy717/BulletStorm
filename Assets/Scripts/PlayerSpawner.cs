@@ -47,12 +47,13 @@ public class PlayerSpawner : MonoBehaviour
         Player = PhotonNetwork.Instantiate(playerprefab.name, PlayerPos.position, PlayerPos.rotation);
     }
 
-    public void PlayerDamaged(string damager, float dmg)
+    public void PlayerDamaged(string damager, float dmg,int actor)
     {
         CurrentHealth -= dmg;
         if (CurrentHealth <= 0)
         {
             Die(damager);
+            MatchManager.instance.UpdatePlayersStatsSend(actor, 0, 1);
         }
         else
         {
@@ -71,6 +72,7 @@ public class PlayerSpawner : MonoBehaviour
         RespawnCanvas.instance.respawntext.text = "YOU WERE KILLED BY " + damager;
         PhotonNetwork.Instantiate(deatheffect.name, Player.transform.position, Quaternion.identity);
         PhotonNetwork.Destroy(Player);
+        MatchManager.instance.UpdatePlayersStatsSend(PhotonNetwork.LocalPlayer.ActorNumber, 1, 1);
         yield return new WaitForSeconds(RespawnTime);
         RespawnCanvas.instance.respawcanvas.SetActive(false);
         CurrentHealth = Maxhealth;

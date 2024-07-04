@@ -114,13 +114,10 @@ public class Shooter : MonoBehaviourPunCallbacks
     }
     void UpdateSliderColor()
     {
-        // Calculate the ratio of heatCounter to maxHeat
         float heatRatio = heatCounter / maxHeat;
 
-        // Interpolate color between lowHeatColor and highHeatColor based on the heatRatio
         Color lerpedColor = Color.Lerp(lowHeatColor, highHeatColor, heatRatio);
 
-        // Update the fill color of the slider
         UIController.Instance.SliderFill.color = lerpedColor;
         UIController.Instance.slider.value = heatRatio;
     }

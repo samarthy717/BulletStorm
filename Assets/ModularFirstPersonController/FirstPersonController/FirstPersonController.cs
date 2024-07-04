@@ -559,15 +559,15 @@ public class FirstPersonController : MonoBehaviourPunCallbacks
     }
     public void TakeDamage(RaycastHit hit,float dmg)
     {
-        hit.collider.gameObject.GetPhotonView().RPC("DealDamage", RpcTarget.All,photonView.Owner.NickName,dmg);
+        hit.collider.gameObject.GetPhotonView().RPC("DealDamage", RpcTarget.All,photonView.Owner.NickName,dmg,PhotonNetwork.LocalPlayer.ActorNumber);
     }
     [PunRPC]
-    public void DealDamage(string damager,float dmg)
+    public void DealDamage(string damager,float dmg,int actor)
     {
         //Debug.Log(damager);
         if (photonView.IsMine)
         {
-            PlayerSpawner.instance.PlayerDamaged(damager,dmg);
+            PlayerSpawner.instance.PlayerDamaged(damager,dmg,actor);
         }
     }
     public void WeaponSelect(int weapon)
