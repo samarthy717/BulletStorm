@@ -88,7 +88,10 @@ public class Shooter : MonoBehaviourPunCallbacks
             {
                 Debug.Log("playerhit"+hit.collider.gameObject.GetPhotonView().Owner.NickName);
                 PhotonNetwork.Instantiate(playerimpact.name, hit.point, Quaternion.identity);
-                fps.TakeDamage(hit,GunDamage);
+                if (fps != null)
+                {
+                    fps.TakeDamage(hit, GunDamage);
+                }
                 //hit.collider.gameObject.GetPhotonView().RPC("DealDamage",RpcTarget.All,photonView.Owner.NickName);
             }
             else
@@ -114,11 +117,14 @@ public class Shooter : MonoBehaviourPunCallbacks
     }
     void UpdateSliderColor()
     {
-        float heatRatio = heatCounter / maxHeat;
+        if (UIController.Instance != null)
+        {
+            float heatRatio = heatCounter / maxHeat;
 
-        Color lerpedColor = Color.Lerp(lowHeatColor, highHeatColor, heatRatio);
+            Color lerpedColor = Color.Lerp(lowHeatColor, highHeatColor, heatRatio);
 
-        UIController.Instance.SliderFill.color = lerpedColor;
-        UIController.Instance.slider.value = heatRatio;
+            UIController.Instance.SliderFill.color = lerpedColor;
+            UIController.Instance.slider.value = heatRatio;
+        }
     }
 }

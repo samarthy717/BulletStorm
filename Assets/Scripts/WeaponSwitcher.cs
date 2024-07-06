@@ -14,7 +14,10 @@ public class WeaponSwitcher : MonoBehaviourPunCallbacks
 
     void Start()
     {
-        fps.WeaponSelect(selectedWeapon);
+        if (fps != null)
+        {
+            fps.WeaponSelect(selectedWeapon);
+        }
     }
 
     void Update()
@@ -41,7 +44,10 @@ public class WeaponSwitcher : MonoBehaviourPunCallbacks
 
             if (previousSelectedWeapon != selectedWeapon)
             {
-                fps.WeaponSelect(selectedWeapon);
+                if (fps!=null)
+                {
+                fps.WeaponSelect(selectedWeapon);                    
+                }
             }
         }
     }

@@ -2,7 +2,9 @@ using ExitGames.Client.Photon;
 using Photon.Pun;
 using Photon.Realtime;
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -11,17 +13,35 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
     public static MatchManager instance;
     public List<PlayerInfo> allplayers = new List<PlayerInfo>();
     private int index;
+    public float waitaftermatch = 5f;
+
+    public GameObject LeaderboardCanvas;
+    public GameObject Leaderboardplayerdisplay;
+    public GameObject Endscreencanvas;
+    public List<GameObject> LeaderBoardofplayers= new List<GameObject>();
+
+    public float matchTimer=100f;
+    public TMP_Text currentTimer;
 
     public enum Eventcodes : byte
     {
         NewPlayers,
         ListPlayers,
-        Updatestats
+        Updatestats,
+        UpdateTimer
     }
+    public enum Gamestates : byte
+    {
+        Waiting,
+        Playing,
+        Ending
+    }
+    public Gamestates state=Gamestates.Waiting;
 
     private void Awake()
     {
         instance = this;
+        //LeaderboardCanvas.SetActive(false);
     }
 
     void Start()
@@ -33,11 +53,46 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
         else
         {
             NewPlayersSend(PhotonNetwork.NickName);
+            state = Gamestates.Playing;
         }
     }
 
     void Update()
     {
+        if(Input.GetKeyDown(KeyCode.Escape) && state!=Gamestates.Ending)
+        {
+            if (LeaderboardCanvas.activeSelf)
+            {
+                LeaderboardCanvas.SetActive(false);
+            }
+            else
+            {
+                ShowLeaderBoard();
+                LeaderboardCanvas.SetActive(true);
+            }
+        }
+        if (state == Gamestates.Playing)
+        {
+            if (matchTimer > 0)
+            {
+                matchTimer -= Time.deltaTime;
+                UpdateTimerText();
+            }
+            else
+            {
+                matchTimer = 0;
+                UpdateTimerText();
+                if (state == Gamestates.Playing)
+                {
+                    state = Gamestates.Ending;
+                    EndGame();
+                }
+            }
+            if (PhotonNetwork.IsMasterClient)
+            {
+                UpdateTimerSend();
+            }
+        }
     }
 
     public void OnEvent(EventData photonevent)
@@ -57,6 +112,9 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
                     break;
                 case Eventcodes.Updatestats:
                     UpdatePlayersStatsRecieve(data);
+                    break;
+                case Eventcodes.UpdateTimer:
+                    UpdateTimerRecieve(data);
                     break;
             }
         }
@@ -173,6 +231,87 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
                 break;
             }
         }
+    }
+    public void UpdateTimerSend()
+    {
+        object[] package = {state,matchTimer};
+        PhotonNetwork.RaiseEvent(
+            (byte)Eventcodes.UpdateTimer,
+            package,
+            new RaiseEventOptions { Receivers = ReceiverGroup.All },
+            new SendOptions { Reliability = true }
+        );
+    }
+
+    public void UpdateTimerRecieve(object[] data)
+    {
+        Gamestates playerstate = (Gamestates)data[0];
+        float timerofmatch = (float)data[1];
+        matchTimer = timerofmatch;
+        UpdateTimerText();
+    }
+
+    void UpdateTimerText()
+    {
+        if (currentTimer != null)
+        {
+            int minutes = Mathf.FloorToInt(matchTimer / 60);
+            int seconds = Mathf.FloorToInt(matchTimer % 60);
+            currentTimer.text = string.Format("{0:00}:{1:00}", minutes, seconds);
+        }
+    }
+
+    void ShowLeaderBoard()
+    {
+        LeaderboardCanvas.SetActive(true);
+        foreach(GameObject lp in LeaderBoardofplayers)
+        {
+            Destroy(lp);
+        }
+        LeaderBoardofplayers.Clear();
+
+        allplayers.Sort((x, y) => y.kills.CompareTo(x.kills));
+
+        foreach (PlayerInfo plyrinfo in allplayers)
+        {
+            GameObject lp = Instantiate(Leaderboardplayerdisplay, Leaderboardplayerdisplay.transform.parent);
+            lp.GetComponent<LeaderBoard>().setdetails(plyrinfo.Name, plyrinfo.kills, plyrinfo.deaths);
+            if (plyrinfo.actornumber == PhotonNetwork.LocalPlayer.ActorNumber)
+            {
+                lp.GetComponent<LeaderBoard>().CurrentPlayer();
+            }
+            lp.SetActive(true);
+            LeaderBoardofplayers.Add(lp);
+        }
+    }
+
+    void EndGame()
+    {
+        state = Gamestates.Ending;
+        if (PhotonNetwork.IsMasterClient)
+        {
+            PhotonNetwork.DestroyAll();
+        }
+        Endscreencanvas.SetActive(true);
+        ShowLeaderBoard();
+
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+
+        StartCoroutine(EndCo());
+    }
+    private IEnumerator EndCo()
+    {
+        yield return new WaitForSeconds(waitaftermatch);
+
+        PhotonNetwork.AutomaticallySyncScene = false;
+        PhotonNetwork.LeaveRoom();
+    }
+    public override void OnLeftRoom()
+    {
+        base.OnLeftRoom();
+
+        SceneManager.LoadScene(0);
     }
 }
 

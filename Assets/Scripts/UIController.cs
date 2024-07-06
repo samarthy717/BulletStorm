@@ -6,7 +6,6 @@ using UnityEngine.UI;
 
 public class UIController : MonoBehaviour
 {
-    // Start is called before the first frame update
     public static UIController Instance;
     public TMP_Text overheatedmessage;
     public Slider slider;

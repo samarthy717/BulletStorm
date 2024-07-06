@@ -34,7 +34,7 @@ public class Launcher : MonoBehaviourPunCallbacks
 
     public GameObject NickNamePanel;
     public TMP_InputField PlayerNickName;
-    private bool hasNickName;
+    public static bool hasNickName;
 
     public string leveltoplay;
     public GameObject Startgamebutton;
@@ -54,6 +54,8 @@ public class Launcher : MonoBehaviourPunCallbacks
 #if UNITY_EDITOR
         TestButton.SetActive(true);
 #endif
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
     }
     private void CloseMenus()
     {
@@ -235,11 +237,10 @@ public class Launcher : MonoBehaviourPunCallbacks
     }
     public void OnJoinRoom(RoomInfo inputinfo)
     {
-        PhotonNetwork.JoinRoom(inputinfo.Name);
-
-        loadingtext.text = "Joining Room..";
-        CloseMenus();
-        LoadingScreen.SetActive(true);
+            PhotonNetwork.JoinRoom(inputinfo.Name);
+            loadingtext.text = "Joining Room..";
+            CloseMenus();
+            LoadingScreen.SetActive(true);
     }
     public void setnickname()
     {
