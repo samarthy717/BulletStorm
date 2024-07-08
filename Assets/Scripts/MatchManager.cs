@@ -88,10 +88,10 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
                     EndGame();
                 }
             }
-            if (PhotonNetwork.IsMasterClient)
+            /*if (PhotonNetwork.IsMasterClient)
             {
                 UpdateTimerSend();
-            }
+            }*/
         }
     }
 
@@ -292,7 +292,10 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
         {
             PhotonNetwork.DestroyAll();
         }
-        Endscreencanvas.SetActive(true);
+        if (Endscreencanvas != null)
+        {
+            Endscreencanvas.SetActive(true);
+        }
         ShowLeaderBoard();
 
         Cursor.lockState = CursorLockMode.None;
