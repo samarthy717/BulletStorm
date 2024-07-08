@@ -79,4 +79,23 @@ public class SpawnManager : MonoBehaviour
             return Docks[Random.Range(0, Docks.Length)];
         }
     }
+    private IEnumerator PlaySoundsInLoop()
+    {
+        AudioManagerr audioManager = FindObjectOfType<AudioManagerr>();
+        if (audioManager == null)
+        {
+            Debug.LogError("AudioManager not found in the scene!");
+            yield break;
+        }
+
+        while (true)
+        {
+            audioManager.Play("theme1");
+            yield return new WaitForSeconds(75);
+
+            audioManager.Play("theme2");
+            yield return new WaitForSeconds(75);
+        }
+    }
+
 }

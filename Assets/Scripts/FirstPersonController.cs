@@ -25,6 +25,7 @@ public class FirstPersonController : MonoBehaviourPunCallbacks
     public Transform gunholder;
     public Material[] playerskins;
 
+
     private bool hassniper = false;
 
     #region Camera Movement Variables
@@ -177,7 +178,9 @@ public class FirstPersonController : MonoBehaviourPunCallbacks
         //Transform currtran = SpawnManager.instance.GetRandomSpawnPoint();
         //transform.position=currtran.position;
         //transform.rotation=currtran.rotation;
-        if(lockCursor)
+        //StartCoroutine(PlaySoundsInLoop());
+
+        if (lockCursor)
         {
             Cursor.lockState = CursorLockMode.Locked;
         }
@@ -546,7 +549,24 @@ public class FirstPersonController : MonoBehaviourPunCallbacks
             isCrouched = true;
         }
     }
+    private IEnumerator PlaySoundsInLoop()
+    {
+        AudioManagerr audioManager = FindObjectOfType<AudioManagerr>();
+        if (audioManager == null)
+        {
+            Debug.LogError("AudioManager not found in the scene!");
+            yield break;
+        }
 
+        while (true)
+        {
+            audioManager.Play("theme1");
+            yield return new WaitForSeconds(75);
+
+            audioManager.Play("theme2");
+            yield return new WaitForSeconds(75);
+        }
+    }
     private void HeadBob()
     {
         if(isWalking)

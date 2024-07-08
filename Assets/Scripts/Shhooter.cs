@@ -81,12 +81,27 @@ public class Shooter : MonoBehaviourPunCallbacks
         Ray ray = Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
         ray.origin = Camera.main.transform.position;
 
+        if (gameObject.tag == "pistol")
+        {
+            FindObjectOfType<AudioManagerr>().Play("pistol");
+        }
+        if (gameObject.tag == "machinegun")
+        {
+            FindObjectOfType<AudioManagerr>().Play("machinegun");
+        }
+        if (gameObject.tag == "sniper")
+        {
+            FindObjectOfType<AudioManagerr>().Play("sniper");
+        }
+
+
         if (Physics.Raycast(ray, out RaycastHit hit))
         {
             Debug.Log(hit.collider.gameObject.tag);
             if (hit.collider != null && hit.collider.gameObject.tag == "Player")
             {
-                Debug.Log("playerhit"+hit.collider.gameObject.GetPhotonView().Owner.NickName);
+                //Debug.Log("playerhit"+hit.collider.gameObject.GetPhotonView().Owner.NickName);
+                FindObjectOfType<AudioManagerr>().Play("impact");
                 PhotonNetwork.Instantiate(playerimpact.name, hit.point, Quaternion.identity);
                 if (fps != null)
                 {

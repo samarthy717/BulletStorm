@@ -91,6 +91,7 @@ public class PlayerSpawner : MonoBehaviour
         {
             rb.isKinematic = true;
         }*/
+        FindObjectOfType<AudioManagerr>().Play("death");
         PhotonNetwork.Destroy(Player);
         MatchManager.instance.UpdatePlayersStatsSend(PhotonNetwork.LocalPlayer.ActorNumber, 1, 1);
         yield return new WaitForSeconds(RespawnTime);
