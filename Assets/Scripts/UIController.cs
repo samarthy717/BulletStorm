@@ -10,6 +10,8 @@ public class UIController : MonoBehaviour
     public TMP_Text overheatedmessage;
     public Slider slider;
     public Image SliderFill;
+    public GameObject snipercrosshair;
+
     private void Awake()
     {
         Instance = this; 

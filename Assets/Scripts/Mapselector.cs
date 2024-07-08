@@ -28,13 +28,10 @@ public class MapSelector : MonoBehaviour
         selectedColorBlock.pressedColor = new Color(200 / 255f, 200 / 255f, 200 / 255f); // slightly darker for pressed state
         selectedColorBlock.selectedColor = new Color(255 / 255f, 255 / 255f, 255 / 255f);
 
-        Checkbuttons();
-        UpdateButtonColors(Sandlandbutton);
+        RequestMasterClientMapIndex();
+        SetbuttonsOn();
     }
-    private void Update()
-    {
-        
-    }
+
     private void Checkbuttons()
     {
         if (!PhotonNetwork.IsMasterClient)
@@ -45,31 +42,17 @@ public class MapSelector : MonoBehaviour
             Docksbutton.interactable = false;
         }
     }
+
     private void SetbuttonsOn()
     {
-        if (SpawnManager.mapIndex == 0)
-        {
-            UpdateButtonColors(Sandlandbutton);
-        }
-        else if (SpawnManager.mapIndex == 1)
-        {
-            UpdateButtonColors(Futurecitybutton);
-        }
-        else if (SpawnManager.mapIndex == 2)
-        {
-            UpdateButtonColors(Docksbutton);
-        }
-        else
-        {
-            UpdateButtonColors(Warehousebutton);
-        }
+        UpdateButtonColors();
     }
+
     public void SetFutureMap()
     {
         if (PhotonNetwork.IsMasterClient)
         {
-            SpawnManager.mapIndex = 1;
-            UpdateButtonColors(Futurecitybutton);
+            SetMap(1);
         }
     }
 
@@ -77,8 +60,7 @@ public class MapSelector : MonoBehaviour
     {
         if (PhotonNetwork.IsMasterClient)
         {
-            SpawnManager.mapIndex = 0;
-            UpdateButtonColors(Sandlandbutton);
+            SetMap(0);
         }
     }
 
@@ -86,8 +68,7 @@ public class MapSelector : MonoBehaviour
     {
         if (PhotonNetwork.IsMasterClient)
         {
-            SpawnManager.mapIndex = 3;
-            UpdateButtonColors(Warehousebutton);
+            SetMap(3);
         }
     }
 
@@ -95,13 +76,30 @@ public class MapSelector : MonoBehaviour
     {
         if (PhotonNetwork.IsMasterClient)
         {
-            SpawnManager.mapIndex = 2;
-            UpdateButtonColors(Docksbutton);
+            SetMap(2);
         }
     }
 
-    private void UpdateButtonColors(Button selectedButton)
+    private void UpdateButtonColors()
     {
+        Button selectedButton = null;
+
+        switch (SpawnManager.mapIndex)
+        {
+            case 0:
+                selectedButton = Sandlandbutton;
+                break;
+            case 1:
+                selectedButton = Futurecitybutton;
+                break;
+            case 2:
+                selectedButton = Docksbutton;
+                break;
+            case 3:
+                selectedButton = Warehousebutton;
+                break;
+        }
+
         Futurecitybutton.colors = normalColorBlock;
         Sandlandbutton.colors = normalColorBlock;
         Warehousebutton.colors = normalColorBlock;
@@ -111,5 +109,43 @@ public class MapSelector : MonoBehaviour
         {
             selectedButton.colors = selectedColorBlock;
         }
+    }
+    [PunRPC]
+    void RequestMapIndex()
+    {
+        if (PhotonNetwork.IsMasterClient)
+        {
+            int currentMapIndex = SpawnManager.mapIndex;
+            PhotonView photonView = GetComponent<PhotonView>();
+            photonView.RPC("RespondMapIndex", RpcTarget.Others, currentMapIndex);
+        }
+    }
+
+    [PunRPC]
+    void RespondMapIndex(int index)
+    {
+        if (!PhotonNetwork.IsMasterClient)
+        {
+            SpawnManager.mapIndex = index;
+            SetbuttonsOn();
+        }
+    }
+
+    void RequestMasterClientMapIndex()
+    {
+        PhotonView photonView = GetComponent<PhotonView>();
+        photonView.RPC("RequestMapIndex", RpcTarget.MasterClient);
+    }
+
+    [PunRPC]
+    void MapSelect(int index)
+    {
+        SpawnManager.mapIndex = index;
+        UpdateButtonColors();
+    }
+
+    public void SetMap(int index)
+    {
+        gameObject.GetPhotonView().RPC("MapSelect", RpcTarget.All, index);
     }
 }

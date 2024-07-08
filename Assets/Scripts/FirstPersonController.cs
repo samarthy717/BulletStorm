@@ -25,6 +25,8 @@ public class FirstPersonController : MonoBehaviourPunCallbacks
     public Transform gunholder;
     public Material[] playerskins;
 
+    private bool hassniper = false;
+
     #region Camera Movement Variables
 
     public Camera playerCamera;
@@ -303,6 +305,15 @@ public class FirstPersonController : MonoBehaviourPunCallbacks
                 {
                     playerCamera.fieldOfView = Mathf.Lerp(playerCamera.fieldOfView, fov, zoomStepTime * Time.deltaTime);
                 }
+/*
+                if (isZoomed && hassniper)
+                {
+                    UIController.Instance.snipercrosshair.SetActive(true);
+                }
+                else
+                {
+                    UIController.Instance.snipercrosshair.SetActive(false);
+                }*/
             }
 
             #endregion
@@ -409,7 +420,6 @@ public class FirstPersonController : MonoBehaviourPunCallbacks
 
             if (playerCanMove)
             {
-                // Calculate how fast we should be moving
                 Vector3 targetVelocity = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
 
                 // Checks if player is walking and isGrounded
@@ -581,6 +591,16 @@ public class FirstPersonController : MonoBehaviourPunCallbacks
     }
     public void WeaponSelect(int weapon)
     {
+        if (weapon == 2)
+        {
+            zoomFOV = 10f;
+            hassniper = true;
+        }
+        else
+        {
+            zoomFOV = 30f;
+            hassniper = false;
+        }
         gameObject.GetPhotonView().RPC("SelectWeaponery", RpcTarget.All, weapon);
     }
     [PunRPC]
@@ -597,13 +617,23 @@ public class FirstPersonController : MonoBehaviourPunCallbacks
             i++;
         }
     }
+    [PunRPC]
+    void MapSelect(int index)
+    {
+        SpawnManager.mapIndex = index;
+    }
+
+    public void SetMap(int index)
+    {
+        gameObject.GetPhotonView().RPC("MapSelect", RpcTarget.All,index);
+    }
 }
 
 
 
 // Custom Editor
 #if UNITY_EDITOR
-    [CustomEditor(typeof(FirstPersonController)), InitializeOnLoadAttribute]
+[CustomEditor(typeof(FirstPersonController)), InitializeOnLoadAttribute]
     public class FirstPersonControllerEditor : Editor
     {
     FirstPersonController fpc;

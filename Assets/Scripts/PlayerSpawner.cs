@@ -19,6 +19,8 @@ public class PlayerSpawner : MonoBehaviour
     public Color HalfHealthColor = Color.yellow;
     public Color LowHealthColor = Color.red;
 
+    public float HealInterval = 10f;
+
     void Awake()
     {
         instance = this;
@@ -36,6 +38,7 @@ public class PlayerSpawner : MonoBehaviour
         {
             SpawnPlayer();
         }
+        StartCoroutine(HealOverTime());
     }
     private void Update()
     {
@@ -71,9 +74,27 @@ public class PlayerSpawner : MonoBehaviour
         RespawnCanvas.instance.respawcanvas.SetActive(true);
         RespawnCanvas.instance.respawntext.text = "YOU WERE KILLED BY " + damager;
         PhotonNetwork.Instantiate(deatheffect.name, Player.transform.position, Quaternion.identity);
+        /*FirstPersonController controller = Player.GetComponent<FirstPersonController>();
+        if (controller != null)
+        {
+            controller.playermodel.gameObject.SetActive(false);
+            controller.gunholder.gameObject.SetActive(false);
+            controller.enabled = false; // Disable player controls
+        }
+        CapsuleCollider capsuleCollider = Player.GetComponent<CapsuleCollider>();
+        if (capsuleCollider != null)
+        {
+            capsuleCollider.enabled = false;
+        }
+        Rigidbody rb = Player.GetComponent<Rigidbody>();
+        if (rb != null)
+        {
+            rb.isKinematic = true;
+        }*/
         PhotonNetwork.Destroy(Player);
         MatchManager.instance.UpdatePlayersStatsSend(PhotonNetwork.LocalPlayer.ActorNumber, 1, 1);
         yield return new WaitForSeconds(RespawnTime);
+        yield return new WaitForSeconds(1);
         RespawnCanvas.instance.respawcanvas.SetActive(false);
         CurrentHealth = Maxhealth;
         SpawnPlayer();
@@ -98,4 +119,19 @@ public class PlayerSpawner : MonoBehaviour
             }
         }
     }
+    IEnumerator HealOverTime()
+    {
+        while (true)
+        {
+            yield return new WaitForSeconds(HealInterval);
+            HealPlayer(0.1f * Maxhealth);
+        }
+    }
+
+    void HealPlayer(float amount)
+    {
+        CurrentHealth = Mathf.Min(CurrentHealth + amount, Maxhealth);
+        UpdateHealthUI();
+    }
+
 }
