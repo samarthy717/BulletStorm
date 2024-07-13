@@ -255,6 +255,7 @@ public class Launcher : MonoBehaviourPunCallbacks
     }
     public void StartGame()
     {
+        Startgamebutton.SetActive(false);
         PhotonNetwork.LoadLevel(leveltoplay);
     }
     public void QuitGame()

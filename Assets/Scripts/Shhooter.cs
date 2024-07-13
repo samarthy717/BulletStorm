@@ -65,7 +65,7 @@ public class Shooter : MonoBehaviourPunCallbacks
             else
             {
                 heatCounter -= overheatCoolRate * Time.deltaTime;
-                if (heatCounter < 0)
+                if (heatCounter <= 0)
                 {
                     overheated = false;
                     UIController.Instance.overheatedmessage.gameObject.SetActive(false);
@@ -106,7 +106,14 @@ public class Shooter : MonoBehaviourPunCallbacks
                 if (fps != null)
                 {
                     fps.TakeDamage(hit, GunDamage);
+                   /* if (PhotonNetwork.LocalPlayer.ActorNumber == attackeractor)
+                    {
+                        UIController.Instance.killedmsg.gameObject.SetActive(true);
+                        UIController.Instance.killedmsg.text = "YOU KILLED " + damer;
+                        StartCoroutine(dissappearmsg());
+                    }*/
                 }
+
                 //hit.collider.gameObject.GetPhotonView().RPC("DealDamage",RpcTarget.All,photonView.Owner.NickName);
             }
             else
@@ -141,5 +148,10 @@ public class Shooter : MonoBehaviourPunCallbacks
             UIController.Instance.SliderFill.color = lerpedColor;
             UIController.Instance.slider.value = heatRatio;
         }
+    }
+    IEnumerator dissappearmsg()
+    {
+        yield return new WaitForSeconds(2f);
+        UIController.Instance.killedmsg.gameObject.SetActive(false);
     }
 }

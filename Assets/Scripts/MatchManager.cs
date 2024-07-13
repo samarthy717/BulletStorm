@@ -23,6 +23,8 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
     public float matchTimer=100f;
     public TMP_Text currentTimer;
 
+    FirstPersonController fps;
+
     public enum Eventcodes : byte
     {
         NewPlayers,
@@ -41,6 +43,7 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
     private void Awake()
     {
         instance = this;
+        fps=FindObjectOfType<FirstPersonController>();
         //LeaderboardCanvas.SetActive(false);
     }
 
@@ -64,11 +67,15 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
             if (LeaderboardCanvas.activeSelf)
             {
                 LeaderboardCanvas.SetActive(false);
+                Cursor.lockState = CursorLockMode.Locked;
+                Cursor.visible = false;
             }
             else
             {
                 ShowLeaderBoard();
                 LeaderboardCanvas.SetActive(true);
+                Cursor.lockState = CursorLockMode.None;
+                Cursor.visible = true;
             }
         }
         if (state == Gamestates.Playing)
@@ -198,9 +205,9 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
         }
     }
 
-    public void UpdatePlayersStatsSend(int actor,int statstoupdate,int val)
+    public void UpdatePlayersStatsSend(int actor,int statstoupdate,int val,string damager,string killername)
     {
-        object[] package = { actor, statstoupdate, val };
+        object[] package = { actor, statstoupdate, val, damager,killername};
         PhotonNetwork.RaiseEvent(
             (byte)Eventcodes.Updatestats,
             package,
@@ -214,8 +221,13 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
         int actor = (int)data[0];
         int statsToupdate = (int)data[1];
         int  val= (int)data[2];
+        string damer = (string)data[3];
+        string killername= (string)data[4];
 
-        for(int i=0;i<allplayers.Count;i++)
+        Debug.Log($"actor: {actor}, statsToUpdate: {statsToupdate}, val: {val}, damer: {damer}, killer: {killername}");
+
+
+        for (int i=0;i<allplayers.Count;i++)
         {
             if (allplayers[i].actornumber == actor)
             {
@@ -223,6 +235,12 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
                 {
                     case 0:
                         allplayers[i].kills += val;
+                        gameObject.GetPhotonView().RPC("NotifyKiller", RpcTarget.All,killername,damer);
+                        /* if (PhotonNetwork.LocalPlayer.ActorNumber == attackeractor && photonView.IsMine)
+                         {
+                         UIController.Instance.killedmsg.gameObject.SetActive(true);
+                         UIController.Instance.killedmsg.text = "YOU KILLED " + damer;
+                         }*/
                         break;
                     case 1:
                         allplayers[i].deaths += val;
@@ -232,6 +250,7 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
             }
         }
     }
+   
     public void UpdateTimerSend()
     {
         object[] package = {state,matchTimer};
@@ -287,6 +306,7 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
 
     void EndGame()
     {
+        currentTimer.gameObject.SetActive(false);
         state = Gamestates.Ending;
         if (PhotonNetwork.IsMasterClient)
         {
@@ -315,6 +335,28 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
         base.OnLeftRoom();
 
         SceneManager.LoadScene(0);
+    }
+    IEnumerator dissappearmsg()
+    {
+        yield return new WaitForSeconds(2f);
+        UIController.Instance.killedmsg.gameObject.SetActive(false);
+    }
+    [PunRPC]
+    public void NotifyKiller(string killername, string damer)
+    {
+        if (PhotonNetwork.LocalPlayer.NickName == killername)
+        {
+            // Display the kill message
+            UIController.Instance.killedmsg.gameObject.SetActive(true);
+            UIController.Instance.killedmsg.text = "YOU KILLED " + damer;
+            StartCoroutine(ClearKillMessage());
+        }
+    }
+
+    private IEnumerator ClearKillMessage()
+    {
+        yield return new WaitForSeconds(3); // Show the message for 3 seconds
+        UIController.Instance.killedmsg.gameObject.SetActive(false);
     }
 }
 

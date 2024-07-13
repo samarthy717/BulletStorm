@@ -10,12 +10,12 @@ public class UIController : MonoBehaviour
     public TMP_Text overheatedmessage;
     public Slider slider;
     public Image SliderFill;
-    public GameObject snipercrosshair;
-
+    public TMP_Text killedmsg;
     private void Awake()
     {
         Instance = this; 
-        overheatedmessage.gameObject.SetActive(false);
+        if(overheatedmessage != null ) overheatedmessage.gameObject.SetActive(false);
+        if(killedmsg!=null) killedmsg.gameObject.SetActive(false);
     }
     void Start()
     {

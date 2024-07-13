@@ -195,7 +195,7 @@ public class FirstPersonController : MonoBehaviourPunCallbacks
             crosshairObject.gameObject.SetActive(false);
         }
         int actorNumber = PhotonNetwork.LocalPlayer.ActorNumber;
-        int materialIndex = actorNumber % playerskins.Length;
+        int materialIndex = photonView.Owner.ActorNumber%8;
 
         Renderer playerRenderer = playermodel.GetComponent<Renderer>();
         if (playerRenderer != null)
@@ -549,24 +549,7 @@ public class FirstPersonController : MonoBehaviourPunCallbacks
             isCrouched = true;
         }
     }
-    private IEnumerator PlaySoundsInLoop()
-    {
-        AudioManagerr audioManager = FindObjectOfType<AudioManagerr>();
-        if (audioManager == null)
-        {
-            Debug.LogError("AudioManager not found in the scene!");
-            yield break;
-        }
-
-        while (true)
-        {
-            audioManager.Play("theme1");
-            yield return new WaitForSeconds(75);
-
-            audioManager.Play("theme2");
-            yield return new WaitForSeconds(75);
-        }
-    }
+  
     private void HeadBob()
     {
         if(isWalking)
@@ -598,15 +581,15 @@ public class FirstPersonController : MonoBehaviourPunCallbacks
     }
     public void TakeDamage(RaycastHit hit,float dmg)
     {
-        hit.collider.gameObject.GetPhotonView().RPC("DealDamage", RpcTarget.All,photonView.Owner.NickName,dmg,PhotonNetwork.LocalPlayer.ActorNumber);
+        hit.collider.gameObject.GetPhotonView().RPC("DealDamage", RpcTarget.All, hit.collider.gameObject.GetPhotonView().Owner.NickName,dmg,PhotonNetwork.LocalPlayer.ActorNumber, PhotonNetwork.LocalPlayer.NickName);
     }
     [PunRPC]
-    public void DealDamage(string damager,float dmg,int actor)
+    public void DealDamage(string damager,float dmg,int actor,string killername)
     {
         //Debug.Log(damager);
         if (photonView.IsMine)
         {
-            PlayerSpawner.instance.PlayerDamaged(damager,dmg,actor);
+            PlayerSpawner.instance.PlayerDamaged(damager,dmg,actor,killername);
         }
     }
     public void WeaponSelect(int weapon)
@@ -647,6 +630,8 @@ public class FirstPersonController : MonoBehaviourPunCallbacks
     {
         gameObject.GetPhotonView().RPC("MapSelect", RpcTarget.All,index);
     }
+    
+
 }
 
 
