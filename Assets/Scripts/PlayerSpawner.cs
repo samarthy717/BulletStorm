@@ -97,7 +97,7 @@ public class PlayerSpawner : MonoBehaviour
     public void OnKill(string name)
     {
         // Logic to handle what happens when this player gets a kill
-        Debug.Log("You killed a player!");
+        //Debug.Log("You killed a player!");
         UIController.Instance.killedmsg.gameObject.SetActive(true);
         UIController.Instance.killedmsg.text = "YOU KILLED " + name;
         StartCoroutine(dissappearmsg());
@@ -112,7 +112,7 @@ public class PlayerSpawner : MonoBehaviour
     IEnumerator Death(string damager,string killername)
     {
         RespawnCanvas.instance.respawcanvas.SetActive(true);
-        RespawnCanvas.instance.respawntext.text = "YOU WERE KILLED BY " + damager;
+        RespawnCanvas.instance.respawntext.text = "YOU WERE KILLED BY " + killername;
         PhotonNetwork.Instantiate(deatheffect.name, Player.transform.position, Quaternion.identity);
         /*FirstPersonController controller = Player.GetComponent<FirstPersonController>();
         if (controller != null)

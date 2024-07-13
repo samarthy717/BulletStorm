@@ -236,11 +236,6 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
                     case 0:
                         allplayers[i].kills += val;
                         gameObject.GetPhotonView().RPC("NotifyKiller", RpcTarget.All,killername,damer);
-                        /* if (PhotonNetwork.LocalPlayer.ActorNumber == attackeractor && photonView.IsMine)
-                         {
-                         UIController.Instance.killedmsg.gameObject.SetActive(true);
-                         UIController.Instance.killedmsg.text = "YOU KILLED " + damer;
-                         }*/
                         break;
                     case 1:
                         allplayers[i].deaths += val;
