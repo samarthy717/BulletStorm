@@ -10,9 +10,11 @@ Bulletstorm is a fast-paced multiplayer battle royale game built in Unity. Playe
 
 In Bulletstorm, players compete in a dynamic and fast-paced battle royale environment. The objective is to eliminate as many opponents as possible within a given time limit. The player with the most kills at the end of the match wins. Use strategy, skill, and the diverse weaponery available to dominate the battlefield and emerge victorious.
 
+![Gameplay Image](Gameplay/gameplay3.png)
+
 ## Play Now
 
-[Download and Play Bulletstorm]([https://example.com/download](https://samarth-717.itch.io/bulletstorm))
+[Play Bulletstorm](https://samarth-717.itch.io/bulletstorm)
 
 ## Features
 
@@ -22,22 +24,26 @@ In Bulletstorm, players compete in a dynamic and fast-paced battle royale enviro
 - **Weapon Variety**: Choose from a range of weapons, including pistols, machine guns, and sniper rifles, each with unique parameters.
 - **Photon Integration**: Utilizes Photon's RPCs and event callbacks for multiplayer interactions.
 
+![Gameplay Image](Gameplay/gameplay1.png)
 
 ## Photon Networking
+![Gameplay Image](Gameplay/connection_demophoton.png)
 
-
-#### Creating a Room
+### Creating a Room
+![Gameplay Image](Gameplay/Mainmenu.png)
 
 To create a room in Bulletstorm using Photon Networking, you first need to initialize Photon in your project. Once initialized, you can create a room with specific options such as visibility, openness, and maximum number of players. This allows you to set up game sessions where other players can join and compete.
 
-#### Joining a Room
+### Joining a Room
+![Gameplay Image](Gameplay/Roompanel.png)
 
 Players can join existing rooms either by selecting a specific room or by joining a random room. Photon provides functionality to handle both cases, ensuring that players can easily find and join games. Callbacks are used to handle the success or failure of room joining attempts, allowing you to implement custom logic for each scenario.
 
-#### Handling Callbacks
+### Handling Callbacks
 
-Photon provides callbacks to manage the various states of room creation and joining. For instance, you can implement logic to handle what happens when a player successfully joins a room or when an attempt to join or create a room fails. This helps in providing a smooth multiplayer experience and proper feedback to the players.
+Photon provides callbacks to manage the syncing of player data over the network, such as kills and deaths. For instance, implementing logic to handle what happens when a player's kill or death data is successfully updated or when there's an attempt to sync this data that fails. This ensures a smooth multiplayer experience and provides proper feedback to the players.
 
+![Gameplay Image](Gameplay/Leaderboarrd.png)
 
 ## Contributing
 
