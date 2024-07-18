@@ -4,7 +4,7 @@ Bulletstorm is a fast-paced multiplayer battle royale game built in Unity. Playe
 
 ## Demo Video
 
-[Demo Video Coming Soon]
+[![Demo Video](https://img.youtube.com/vi/hJyXcGWY1bY/0.jpg)](https://www.youtube.com/watch?v=hJyXcGWY1bY&ab_channel=SamarthYadav)
 
 ## Gameplay
 
@@ -12,7 +12,7 @@ In Bulletstorm, players compete in a dynamic and fast-paced battle royale enviro
 
 ## Play Now
 
-[Download and Play Bulletstorm](https://example.com/download)
+[Download and Play Bulletstorm]([https://example.com/download](https://samarth-717.itch.io/bulletstorm))
 
 ## Features
 
